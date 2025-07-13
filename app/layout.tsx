@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: "Is That a Red Flag? | Dating Behavior Judgement Community",
     description:
       "Submit dating behaviors and let the crowd decide if they're red flags, green flags, or neutral. Community-driven dating advice!",
-    // url: "https://yourapp.com", // Replace with your actual domain
+    url: "https://is-that-a-red-flag.vercel.app/", // Replace with your actual domain
     siteName: "Is That a Red Flag?",
     images: [
       {
@@ -44,12 +44,12 @@ export const metadata: Metadata = {
     title: "Is That a Red Flag? | Dating Behavior Judgement Community",
     description:
       "Submit dating behaviors and let the crowd decide if they're red flags, green flags, or neutral!",
-    images: ["/og-image.png"], // Same image as OpenGraph
+    images: ["/main_image.png"], // Same image as OpenGraph
     creator: "@tom_hobza", // Replace with your Twitter handle if you have one
   },
-  // alternates: {
-  //   canonical: "https://yourapp.com", // Replace with your actual domain
-  // },
+  alternates: {
+    canonical: "https://is-that-a-red-flag.vercel.app/", // Replace with your actual domain
+  },
   category: "lifestyle",
 };
 
