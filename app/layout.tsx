@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "Is That a Red Flag?",
     images: [
       {
-        url: "/main_image.png", // You'll want to create this
+        url: "/preview.png", // You'll want to create this
         width: 1200,
         height: 630,
         alt: "Is That a Red Flag? - Dating Behavior Community",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "Is That a Red Flag? | Dating Behavior Judgement Community",
     description:
       "Submit dating behaviors and let the crowd decide if they're red flags, green flags, or neutral!",
-    images: ["/main_image.png"], // Same image as OpenGraph
+    images: ["/preview.png"], // Same image as OpenGraph
     creator: "@tom_hobza", // Replace with your Twitter handle if you have one
   },
   alternates: {
