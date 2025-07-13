@@ -12,6 +12,10 @@ import {
   QueryDocumentSnapshot,
   DocumentData,
   getDoc,
+  serverTimestamp,
+  Timestamp,
+  startAfter,
+  QueryConstraint,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { TraitType, TraitWithTotalType } from "@/lib/types";
@@ -28,20 +32,34 @@ const docToTrait = (doc: QueryDocumentSnapshot<DocumentData>): TraitType => {
       greenFlag: data.votes?.greenFlag || 0,
       neutral: data.votes?.neutral || 0,
     },
+    createdAt: (data.createdAt as Timestamp)?.toDate() || new Date(),
   };
 };
 
 // Get all traits (with pagination)
-export const getTraits = async (limitCount = 20): Promise<TraitType[]> => {
-  const q = query(
-    collection(db, "traits"),
+export const getTraits = async (
+  limitCount = 20,
+  lastVisible?: QueryDocumentSnapshot<DocumentData>
+): Promise<{
+  traits: TraitType[];
+  lastDoc: QueryDocumentSnapshot<DocumentData> | null;
+}> => {
+  const constraints: QueryConstraint[] = [
     where("isApproved", "==", true),
-    orderBy("text"), // Simple ordering since no createdAt
-    limit(limitCount)
-  );
+    orderBy("createdAt", "desc"),
+    limit(limitCount),
+  ];
+
+  if (lastVisible) {
+    constraints.push(startAfter(lastVisible));
+  }
+
+  const q = query(collection(db, "traits"), ...constraints);
 
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(docToTrait);
+  const traits = querySnapshot.docs.map(docToTrait);
+  const lastDoc = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+  return { traits, lastDoc };
 };
 
 // Submit a new TraitType
@@ -54,6 +72,7 @@ export const submitTrait = async (text: string): Promise<string> => {
       greenFlag: 0,
       neutral: 0,
     },
+    createdAt: serverTimestamp(),
   };
 
   const docRef = await addDoc(collection(db, "traits"), traitData);
@@ -97,12 +116,10 @@ export const getPopularTraits = async (
   const traits = querySnapshot.docs.map(docToTrait);
 
   // Calculate total votes and sort
-  const traitsWithTotals: TraitWithTotalType[] = traits.map((TraitType) => ({
-    ...TraitType,
+  const traitsWithTotals: TraitWithTotalType[] = traits.map((trait) => ({
+    ...trait,
     totalVotes:
-      TraitType.votes.redFlag +
-      TraitType.votes.greenFlag +
-      TraitType.votes.neutral,
+      trait.votes.redFlag + trait.votes.greenFlag + trait.votes.neutral,
   }));
 
   traitsWithTotals.sort((a, b) => b.totalVotes - a.totalVotes);

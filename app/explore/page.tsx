@@ -1,74 +1,105 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, TrendingUp, Clock, Heart, AlertTriangle } from "lucide-react";
+import {
+  Search,
+  TrendingUp,
+  Clock,
+  Heart,
+  AlertTriangle,
+  Minus,
+} from "lucide-react";
 import Trait from "@/components/Trait";
 import Button from "@/components/Button";
 import StartJudging from "@/components/StartJudging";
 import { getTraits, getPopularTraits } from "@/lib/firestore";
 import { TraitType } from "@/lib/types";
+import { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import Link from "next/link";
 
 export default function Explore() {
   const [traits, setTraits] = useState<TraitType[]>([]);
+  const [allFetchedTraits, setAllFetchedTraits] = useState<TraitType[]>([]); // For client-side pagination
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("popular"); // popular, recent, redFlags, greenFlags
-  // const [stats, setStats] = useState({
-  //   total: 0,
-  //   redFlags: 0,
-  //   greenFlags: 0,
-  //   neutral: 0,
-  // });
+  const [lastDoc, setLastDoc] =
+    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1); // For client-side pagination
+
+  const PAGE_SIZE = 20;
 
   // Load traits on component mount
   useEffect(() => {
-    loadTraits();
+    loadInitialTraits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterType]);
 
-  const loadTraits = async () => {
+  const loadInitialTraits = async () => {
+    setLoading(true);
+    setTraits([]);
+    setAllFetchedTraits([]);
+    setLastDoc(null);
+    setHasMore(true);
+    setPage(1);
+
     try {
-      setLoading(true);
-      let fetchedTraits = [];
+      let fetchedTraits: TraitType[] = [];
 
       switch (filterType) {
         case "popular":
-          fetchedTraits = await getPopularTraits(20);
+          fetchedTraits = await getPopularTraits(100); // Fetch a larger batch
+          setAllFetchedTraits(fetchedTraits);
+          setTraits(fetchedTraits.slice(0, PAGE_SIZE));
+          setHasMore(fetchedTraits.length > PAGE_SIZE);
           break;
         case "recent":
-          fetchedTraits = await getTraits(20); // Default ordering
+          const { traits: recentTraits, lastDoc: recentLastDoc } =
+            await getTraits(PAGE_SIZE);
+          fetchedTraits = recentTraits;
+          setTraits(fetchedTraits);
+          setLastDoc(recentLastDoc);
+          setHasMore(!!recentLastDoc && fetchedTraits.length === PAGE_SIZE);
           break;
         case "redFlags":
-          fetchedTraits = await getPopularTraits(50);
-          // Filter for traits where red flag is the majority
-          fetchedTraits = fetchedTraits
-            .filter((trait) => {
-              const total =
-                trait.votes.redFlag +
-                trait.votes.greenFlag +
-                trait.votes.neutral;
-              return total > 0 && trait.votes.redFlag / total > 0.5;
-            })
-            .slice(0, 20);
+          const popularForRed = await getPopularTraits(100);
+          fetchedTraits = popularForRed.filter(
+            (trait) =>
+              trait.votes.redFlag > trait.votes.greenFlag &&
+              trait.votes.redFlag > trait.votes.neutral
+          );
+          setAllFetchedTraits(fetchedTraits);
+          setTraits(fetchedTraits.slice(0, PAGE_SIZE));
+          setHasMore(fetchedTraits.length > PAGE_SIZE);
           break;
         case "greenFlags":
-          fetchedTraits = await getPopularTraits(50);
-          // Filter for traits where green flag is the majority
-          fetchedTraits = fetchedTraits
-            .filter((trait) => {
-              const total =
-                trait.votes.redFlag +
-                trait.votes.greenFlag +
-                trait.votes.neutral;
-              return total > 0 && trait.votes.greenFlag / total > 0.5;
-            })
-            .slice(0, 20);
+          const popularForGreen = await getPopularTraits(100);
+          fetchedTraits = popularForGreen.filter(
+            (trait) =>
+              trait.votes.greenFlag > trait.votes.redFlag &&
+              trait.votes.greenFlag > trait.votes.neutral
+          );
+          setAllFetchedTraits(fetchedTraits);
+          setTraits(fetchedTraits.slice(0, PAGE_SIZE));
+          setHasMore(fetchedTraits.length > PAGE_SIZE);
+          break;
+        case "neutral":
+          const popularForNeutral = await getPopularTraits(100);
+          fetchedTraits = popularForNeutral.filter(
+            (trait) =>
+              trait.votes.neutral >= trait.votes.redFlag &&
+              trait.votes.neutral >= trait.votes.greenFlag
+          );
+          setAllFetchedTraits(fetchedTraits);
+          setTraits(fetchedTraits.slice(0, PAGE_SIZE));
+          setHasMore(fetchedTraits.length > PAGE_SIZE);
           break;
         default:
-          fetchedTraits = await getPopularTraits(20);
+          fetchedTraits = await getPopularTraits(PAGE_SIZE);
+          setTraits(fetchedTraits);
+          setHasMore(false);
       }
-
-      setTraits(fetchedTraits);
-      // calculateStats(fetchedTraits);
     } catch (error) {
       console.error("Error loading traits:", error);
     } finally {
@@ -76,37 +107,33 @@ export default function Explore() {
     }
   };
 
-  // const calculateStats = (traitsData: TraitType[]) => {
-  //   // const totalBehaviors = traitsData.length;
-  //   // let redFlagsCount = 0;
-  //   // let greenFlagsCount = 0;
-  //   // let neutralCount = 0;
+  const loadMoreTraits = async () => {
+    if (loading || !hasMore) return;
 
-  //   // traitsData.forEach((trait) => {
-  //   //   const total =
-  //   //     trait.votes.redFlag + trait.votes.greenFlag + trait.votes.neutral;
-  //   //   if (total > 0) {
-  //   //     const redPercent = trait.votes.redFlag / total;
-  //   //     const greenPercent = trait.votes.greenFlag / total;
-  //   //     const neutralPercent = trait.votes.neutral / total;
-
-  //   //     if (redPercent > greenPercent && redPercent > neutralPercent) {
-  //   //       redFlagsCount++;
-  //   //     } else if (greenPercent > redPercent && greenPercent > neutralPercent) {
-  //   //       greenFlagsCount++;
-  //   //     } else {
-  //   //       neutralCount++;
-  //   //     }
-  //   //   }
-  //   // });
-
-  //   // setStats({
-  //   //   total: totalBehaviors,
-  //   //   redFlags: redFlagsCount,
-  //   //   greenFlags: greenFlagsCount,
-  //   //   neutral: neutralCount,
-  //   // });
-  // };
+    setLoading(true);
+    try {
+      if (filterType === "recent") {
+        const { traits: newTraits, lastDoc: newLastDoc } = await getTraits(
+          PAGE_SIZE,
+          lastDoc || undefined
+        );
+        setTraits((prev) => [...prev, ...newTraits]);
+        setLastDoc(newLastDoc);
+        setHasMore(!!newLastDoc && newTraits.length === PAGE_SIZE);
+      } else {
+        // Client-side pagination for other filters
+        const nextPage = page + 1;
+        const newTraits = allFetchedTraits.slice(0, nextPage * PAGE_SIZE);
+        setTraits(newTraits);
+        setPage(nextPage);
+        setHasMore(allFetchedTraits.length > nextPage * PAGE_SIZE);
+      }
+    } catch (error) {
+      console.error("Error loading more traits:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter traits based on search term
   const filteredTraits = traits.filter((trait: TraitType) =>
@@ -182,49 +209,22 @@ export default function Explore() {
                 Green Flags
               </div>
             </Button>
+            {/* Neutral */}
+            <Button
+              onClick={() => handleFilterChange("neutral")}
+              bgColor={filterType === "neutral" ? "bg-pink-400" : "bg-rose-300"}
+            >
+              <div className={`flex items-center gap-2 text-sm font-bold`}>
+                <Minus size={16} />
+                Neutral
+              </div>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* EXPLORE HEADER */}
-      {/* <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-black text-rose-800 mb-4">
-          🔍 Explore All Behaviors
-        </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Browse through all the dating behaviors our community has judged. See
-          what&apos;s trending and discover new red flags you never thought of!
-        </p>
-      </div> */}
-
-      {/* STATS BAR */}
-      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-2xl p-4 border-2 border-rose-200 text-center">
-          <div className="text-2xl font-bold text-rose-800">{stats.total}</div>
-          <div className="text-sm text-gray-600">Total Behaviors</div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 border-2 border-rose-200 text-center">
-          <div className="text-2xl font-bold text-red-600">
-            {stats.redFlags}
-          </div>
-          <div className="text-sm text-gray-600">Red Flags</div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 border-2 border-rose-200 text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {stats.greenFlags}
-          </div>
-          <div className="text-sm text-gray-600">Green Flags</div>
-        </div>
-        <div className="bg-white rounded-2xl p-4 border-2 border-rose-200 text-center">
-          <div className="text-2xl font-bold text-gray-600">
-            {stats.neutral}
-          </div>
-          <div className="text-sm text-gray-600">Neutral</div>
-        </div>
-      </div> */}
-
       {/* TRAITS GRID */}
-      {loading ? (
+      {loading && traits.length === 0 ? (
         <div className="text-center my-6">
           <div className="text-4xl mb-4">🔍</div>
           <h2 className="text-2xl font-bold text-rose-800 mb-2">
@@ -268,11 +268,11 @@ export default function Explore() {
         </div>
       )}
       {/* LOAD MORE SECTION */}
-      {filteredTraits.length > 0 && (
+      {hasMore && (
         <div className="text-center mb-8 flex flex-col items-center gap-1">
-          <Button onClick={loadTraits}>
+          <Button onClick={loadMoreTraits} disabled={loading}>
             <div className="flex font-semibold items-center gap-2">
-              Load More Behaviors
+              {loading ? "Loading..." : "Load More Behaviors"}
             </div>
           </Button>
           <p className="text-sm text-gray-500 mt-2">
@@ -291,11 +291,13 @@ export default function Explore() {
           it&apos;s a red flag, green flag, or just another Tuesday in the
           dating world.
         </p>
-        <Button>
-          <div className="flex font-semibold items-center gap-2">
-            Submit a Behavior
-          </div>
-        </Button>
+        <Link href="/submit">
+          <Button>
+            <div className="flex font-semibold items-center gap-2">
+              Submit a Behavior
+            </div>
+          </Button>
+        </Link>
       </div>
 
       {/* FOOTER */}
