@@ -36,9 +36,9 @@ function Trait({
   total: number;
 }) {
   return (
-    <div className="bg-rose-100 transition-all border-foreground border-2 rounded-2xl p-6 flex flex-col">
-      <div className="">
-        <p className="text-lg font-semibold  text-foreground mb-4">
+    <div className="bg-rose-100 transition-all hover:scale-[1.02] border-foreground border-2 rounded-2xl p-6 flex flex-col">
+      <div className="flex flex-col flex-grow">
+        <p className="text-lg font-semibold flex-grow text-foreground mb-4">
           &quot;{text}&quot;
         </p>
         <div className="flex justify-end items-center  gap-1 text-xs text-rose-600">
@@ -47,7 +47,7 @@ function Trait({
         </div>
       </div>
 
-      <hr className="mt-2 mb-3 border-rose-200 border-dashed" />
+      <hr className="mt-2 mb-3 border-foreground border-dashed" />
 
       <div className="">
         <StatBar percentage={redFlag} color="bg-primary" label="🚩" />

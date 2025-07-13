@@ -1,7 +1,8 @@
 import React from "react";
-import { ArrowRight, Users, TrendingUp, Flag, PenSquare } from "lucide-react";
+import { ArrowRight, Users, TrendingUp, Flag } from "lucide-react";
 import Trait from "@/components/Trait";
 import Button from "@/components/Button";
+import StartJudging from "@/components/StartJudging";
 
 export default function Home() {
   // Sample recent traits/actions with stats
@@ -137,26 +138,7 @@ export default function Home() {
       </div>
 
       {/* CTA SECTION */}
-      <div className="text-center bg-accent rounded-3xl p-8 text-foreground border-2 border-foreground">
-        <h2 className="text-3xl font-bold mb-4">Ready to Start Judging?</h2>
-        <p className="text-xl mb-8 opacity-90">
-          Join the community helping navigate the dating world
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button bgColor="bg-pink-400">
-            <div className="flex items-center gap-2 font-semibold">
-              <Flag size={18} />
-              <span>Start Voting</span>
-            </div>
-          </Button>
-          <Button bgColor="bg-pink-200">
-            <div className="flex items-center gap-2 font-semibold">
-              <PenSquare size={18} />
-              <span>Submit a Behavior</span>
-            </div>
-          </Button>
-        </div>
-      </div>
+      <StartJudging />
 
       {/* FOOTER */}
       <div className="text-center mt-8 text-rose-600">
