@@ -1,32 +1,35 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { ArrowRight, Users, TrendingUp, Flag } from "lucide-react";
 import Trait from "@/components/Trait";
 import Button from "@/components/Button";
 import StartJudging from "@/components/StartJudging";
 import Link from "next/link";
+import { getPopularTraits } from "@/lib/firestore";
+import { TraitType } from "@/lib/types";
 
 export default function Home() {
-  // Sample recent traits/actions with stats
-  const recentTraits = [
-    {
-      text: "Takes 3+ hours to reply to texts but posts on social media",
-      redFlag: 67,
-      greenFlag: 12,
-      neutral: 21,
-    },
-    {
-      text: "Always splits the bill exactly down to the penny",
-      redFlag: 34,
-      greenFlag: 28,
-      neutral: 38,
-    },
-    {
-      text: "Remembers your coffee order after the second date",
-      redFlag: 5,
-      greenFlag: 78,
-      neutral: 17,
-    },
-  ];
+  const [recentTraits, setRecentTraits] = useState<TraitType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load recent traits on component mount
+  useEffect(() => {
+    loadRecentTraits();
+  }, []);
+
+  const loadRecentTraits = async () => {
+    try {
+      setLoading(true);
+      // Get 3 most popular traits for the homepage
+      const fetchedTraits = await getPopularTraits(3);
+      setRecentTraits(fetchedTraits);
+    } catch (error) {
+      console.error("Error loading recent traits:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-full min-h-full p-4 md:p-20 flex flex-col justify-start">
@@ -58,22 +61,50 @@ export default function Home() {
           See what the community is saying
         </p>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {recentTraits.map((trait, index) => (
-            <Trait
-              key={index}
-              text={trait.text}
-              redFlag={trait.redFlag}
-              greenFlag={trait.greenFlag}
-              neutral={trait.neutral}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Loading skeleton */}
+            {[1, 2, 3].map((index) => (
+              <div
+                key={index}
+                className="bg-rose-100 border-2 border-rose-200 rounded-2xl p-6 animate-pulse"
+              >
+                <div className="h-4 bg-rose-200 rounded mb-4"></div>
+                <div className="h-4 bg-rose-200 rounded w-3/4 mb-6"></div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-rose-200 rounded"></div>
+                  <div className="h-3 bg-rose-200 rounded"></div>
+                  <div className="h-3 bg-rose-200 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : recentTraits.length > 0 ? (
+          <div className="grid md:grid-cols-3 gap-6">
+            {recentTraits.map((trait) => (
+              <Trait
+                key={trait.id}
+                text={trait.text}
+                redFlag={trait.votes.redFlag}
+                greenFlag={trait.votes.greenFlag}
+                neutral={trait.votes.neutral}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🤷‍♀️</div>
+            <h3 className="text-2xl font-bold text-rose-800 mb-2">
+              No behaviors yet
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Be the first to submit a dating behavior for the community to
+              judge!
+            </p>
+          </div>
+        )}
 
         <div className="text-center my-6 flex justify-center">
-          {/* <button className="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 mx-auto">
-            Explore More <ArrowRight size={18} />
-          </button> */}
           <Link href="/explore">
             <Button>
               <div className="flex font-semibold items-center gap-2">
