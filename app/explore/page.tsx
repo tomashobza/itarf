@@ -243,6 +243,7 @@ export default function Explore() {
               redFlag={trait.votes.redFlag}
               greenFlag={trait.votes.greenFlag}
               neutral={trait.votes.neutral}
+              traitId={trait.id}
             />
           ))}
         </div>

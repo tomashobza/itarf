@@ -1,4 +1,5 @@
 import { Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const StatBar = ({
@@ -29,12 +30,16 @@ function Trait({
   redFlag,
   greenFlag,
   neutral,
+  traitId,
 }: {
   text: string;
   redFlag: number;
   greenFlag: number;
   neutral: number;
+  traitId: string;
 }) {
+  const router = useRouter();
+
   const total = redFlag + greenFlag + neutral;
   const redFlagPercentage = (redFlag / total) * 100;
   const greenFlagPercentage = (greenFlag / total) * 100;
@@ -68,7 +73,11 @@ function Trait({
 
   return (
     <div
-      className={`transition-all hover:scale-[1.02] border-foreground border-2 rounded-2xl p-6 flex flex-col ${resultColor} ${resultTextColor}`}
+      className={`transition-all cursor-pointer hover:scale-[1.02] border-foreground border-2 rounded-2xl p-6 flex flex-col ${resultColor} ${resultTextColor}`}
+      onClick={() => {
+        // TODO: Navigate to /explore/[traitId] page
+        router.push(`/explore/${traitId}`);
+      }}
     >
       <div className="flex flex-col flex-grow">
         <p className="text-lg font-semibold flex-grow text-foreground mb-4">

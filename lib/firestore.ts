@@ -11,6 +11,7 @@ import {
   where,
   QueryDocumentSnapshot,
   DocumentData,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { TraitType, TraitWithTotalType } from "@/lib/types";
@@ -106,4 +107,15 @@ export const getPopularTraits = async (
 
   traitsWithTotals.sort((a, b) => b.totalVotes - a.totalVotes);
   return traitsWithTotals.slice(0, limitCount);
+};
+
+// Get a specific TraitType by ID
+export const getTraitById = async (id: string): Promise<TraitType | null> => {
+  const docRef = doc(db, "traits", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    return docToTrait(docSnap);
+  }
+  return null;
 };

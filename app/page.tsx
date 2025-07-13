@@ -47,7 +47,7 @@ export default function Home() {
           <img
             src="/main_image.png"
             alt="Main Illustration"
-            className="w-[80%] md:w-[25rem] h-auto"
+            className="w-[80%] md:w-[25rem] h-auto drop-shadow-[0px_0px_40px_#ffffff4a]"
           />
         </div>
       </div>
@@ -88,6 +88,7 @@ export default function Home() {
                 redFlag={trait.votes.redFlag}
                 greenFlag={trait.votes.greenFlag}
                 neutral={trait.votes.neutral}
+                traitId={trait.id}
               />
             ))}
           </div>
@@ -115,8 +116,11 @@ export default function Home() {
         </div>
       </div>
 
+      {/* CTA SECTION */}
+      <StartJudging />
+
       {/* WHAT IS THIS SECTION */}
-      <div className="bg-gradient-to-r border-2 border-foreground from-rose-100 to-pink-100 rounded-3xl p-8 mb-6 md:mb-12">
+      <div className="bg-gradient-to-r border-2 border-foreground from-rose-100 to-pink-100 rounded-3xl p-8 mt-6 md:mt-12">
         <h2 className="text-3xl font-bold text-center mb-6 text-rose-800">
           What is this?
         </h2>
@@ -166,9 +170,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* CTA SECTION */}
-      <StartJudging />
 
       {/* FOOTER */}
       <div className="text-center mt-8 text-rose-600">
