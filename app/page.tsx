@@ -12,21 +12,18 @@ export default function Home() {
       redFlag: 67,
       greenFlag: 12,
       neutral: 21,
-      total: 1247,
     },
     {
       text: "Always splits the bill exactly down to the penny",
       redFlag: 34,
       greenFlag: 28,
       neutral: 38,
-      total: 892,
     },
     {
       text: "Remembers your coffee order after the second date",
       redFlag: 5,
       greenFlag: 78,
       neutral: 17,
-      total: 1456,
     },
   ];
 
@@ -68,7 +65,6 @@ export default function Home() {
               redFlag={trait.redFlag}
               greenFlag={trait.greenFlag}
               neutral={trait.neutral}
-              total={trait.total}
             />
           ))}
         </div>
