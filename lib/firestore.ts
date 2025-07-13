@@ -136,3 +136,32 @@ export const getTraitById = async (id: string): Promise<TraitType | null> => {
   }
   return null;
 };
+
+// Get a single random trait for judging
+export const getSingleRandomTrait = async (
+  excludeIds: string[] = []
+): Promise<TraitType | null> => {
+  // This is not perfectly random and can be slow on large datasets.
+  // For a real app, a more robust solution would be needed.
+  const q = query(
+    collection(db, "traits"),
+    where("isApproved", "==", true),
+    limit(20) // Fetch a small batch to randomize from
+  );
+
+  const querySnapshot = await getDocs(q);
+  let allTraits = querySnapshot.docs.map(docToTrait);
+
+  // Filter out any traits that are in the excludeIds list
+  if (excludeIds.length > 0) {
+    allTraits = allTraits.filter((trait) => !excludeIds.includes(trait.id));
+  }
+
+  if (allTraits.length === 0) {
+    return null; // No traits found or all have been seen
+  }
+
+  // Shuffle and return one
+  const shuffled = allTraits.sort(() => 0.5 - Math.random());
+  return shuffled[0];
+};

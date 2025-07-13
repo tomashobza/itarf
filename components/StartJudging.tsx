@@ -11,12 +11,14 @@ function StartJudging() {
         Join the community helping navigate the dating world
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Button bgColor="bg-pink-400">
-          <div className="flex items-center gap-2 font-semibold">
-            <Flag size={18} />
-            <span>Start Voting</span>
-          </div>
-        </Button>
+        <Link href="/vote" className="flex flex-col">
+          <Button bgColor="bg-pink-400">
+            <div className="flex items-center gap-2 font-semibold">
+              <Flag size={18} />
+              <span>Start Voting</span>
+            </div>
+          </Button>
+        </Link>
         <Link href="/submit" className="flex flex-col">
           <Button bgColor="bg-pink-200">
             <div className="flex items-center gap-2 font-semibold">
