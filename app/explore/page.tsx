@@ -13,12 +13,12 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("popular"); // popular, recent, redFlags, greenFlags
-  const [stats, setStats] = useState({
-    total: 0,
-    redFlags: 0,
-    greenFlags: 0,
-    neutral: 0,
-  });
+  // const [stats, setStats] = useState({
+  //   total: 0,
+  //   redFlags: 0,
+  //   greenFlags: 0,
+  //   neutral: 0,
+  // });
 
   // Load traits on component mount
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function Explore() {
       }
 
       setTraits(fetchedTraits);
-      calculateStats(fetchedTraits);
+      // calculateStats(fetchedTraits);
     } catch (error) {
       console.error("Error loading traits:", error);
     } finally {
@@ -76,37 +76,37 @@ export default function Explore() {
     }
   };
 
-  const calculateStats = (traitsData: TraitType[]) => {
-    const totalBehaviors = traitsData.length;
-    let redFlagsCount = 0;
-    let greenFlagsCount = 0;
-    let neutralCount = 0;
+  // const calculateStats = (traitsData: TraitType[]) => {
+  //   // const totalBehaviors = traitsData.length;
+  //   // let redFlagsCount = 0;
+  //   // let greenFlagsCount = 0;
+  //   // let neutralCount = 0;
 
-    traitsData.forEach((trait) => {
-      const total =
-        trait.votes.redFlag + trait.votes.greenFlag + trait.votes.neutral;
-      if (total > 0) {
-        const redPercent = trait.votes.redFlag / total;
-        const greenPercent = trait.votes.greenFlag / total;
-        const neutralPercent = trait.votes.neutral / total;
+  //   // traitsData.forEach((trait) => {
+  //   //   const total =
+  //   //     trait.votes.redFlag + trait.votes.greenFlag + trait.votes.neutral;
+  //   //   if (total > 0) {
+  //   //     const redPercent = trait.votes.redFlag / total;
+  //   //     const greenPercent = trait.votes.greenFlag / total;
+  //   //     const neutralPercent = trait.votes.neutral / total;
 
-        if (redPercent > greenPercent && redPercent > neutralPercent) {
-          redFlagsCount++;
-        } else if (greenPercent > redPercent && greenPercent > neutralPercent) {
-          greenFlagsCount++;
-        } else {
-          neutralCount++;
-        }
-      }
-    });
+  //   //     if (redPercent > greenPercent && redPercent > neutralPercent) {
+  //   //       redFlagsCount++;
+  //   //     } else if (greenPercent > redPercent && greenPercent > neutralPercent) {
+  //   //       greenFlagsCount++;
+  //   //     } else {
+  //   //       neutralCount++;
+  //   //     }
+  //   //   }
+  //   // });
 
-    setStats({
-      total: totalBehaviors,
-      redFlags: redFlagsCount,
-      greenFlags: greenFlagsCount,
-      neutral: neutralCount,
-    });
-  };
+  //   // setStats({
+  //   //   total: totalBehaviors,
+  //   //   redFlags: redFlagsCount,
+  //   //   greenFlags: greenFlagsCount,
+  //   //   neutral: neutralCount,
+  //   // });
+  // };
 
   // Filter traits based on search term
   const filteredTraits = traits.filter((trait: TraitType) =>
@@ -141,7 +141,7 @@ export default function Explore() {
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap justify-center md:justify-end">
             <Button
               onClick={() => handleFilterChange("popular")}
               bgColor={filterType === "popular" ? "bg-pink-400" : "bg-rose-300"}
@@ -187,7 +187,7 @@ export default function Explore() {
       </div>
 
       {/* EXPLORE HEADER */}
-      <div className="text-center mb-8">
+      {/* <div className="text-center mb-8">
         <h1 className="text-4xl md:text-5xl font-black text-rose-800 mb-4">
           🔍 Explore All Behaviors
         </h1>
@@ -195,10 +195,10 @@ export default function Explore() {
           Browse through all the dating behaviors our community has judged. See
           what&apos;s trending and discover new red flags you never thought of!
         </p>
-      </div>
+      </div> */}
 
       {/* STATS BAR */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-2xl p-4 border-2 border-rose-200 text-center">
           <div className="text-2xl font-bold text-rose-800">{stats.total}</div>
           <div className="text-sm text-gray-600">Total Behaviors</div>
@@ -221,7 +221,7 @@ export default function Explore() {
           </div>
           <div className="text-sm text-gray-600">Neutral</div>
         </div>
-      </div>
+      </div> */}
 
       {/* TRAITS GRID */}
       {loading ? (
