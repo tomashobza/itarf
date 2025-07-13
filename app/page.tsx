@@ -3,6 +3,7 @@ import { ArrowRight, Users, TrendingUp, Flag } from "lucide-react";
 import Trait from "@/components/Trait";
 import Button from "@/components/Button";
 import StartJudging from "@/components/StartJudging";
+import Link from "next/link";
 
 export default function Home() {
   // Sample recent traits/actions with stats
@@ -73,11 +74,13 @@ export default function Home() {
           {/* <button className="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-xl font-semibold transition-colors flex items-center gap-2 mx-auto">
             Explore More <ArrowRight size={18} />
           </button> */}
-          <Button>
-            <div className="flex font-semibold items-center gap-2">
-              Explore More <ArrowRight size={18} />
-            </div>
-          </Button>
+          <Link href="/explore">
+            <Button>
+              <div className="flex font-semibold items-center gap-2">
+                Explore More <ArrowRight size={18} />
+              </div>
+            </Button>
+          </Link>
         </div>
       </div>
 
